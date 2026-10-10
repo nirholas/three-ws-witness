@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>@three-ws/witness: Turn a real user session into a runnable failing test</title>
+<meta name="description" content="Turn a real user session into a runnable failing test. A tiny, privacy-first session recorder that captures intent (not pixels, not DOM mutations) and compiles it into a Playwright spec that stays red until the reported bug is fixed.">
+<link rel="canonical" href="https://nirholas.github.io/three-ws-witness/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="three.ws">
+<meta property="og:title" content="@three-ws/witness">
+<meta property="og:description" content="Turn a real user session into a runnable failing test. A tiny, privacy-first session recorder that captures intent (not pixels, not DOM mutations) and compiles it into a Playwright spec that stays red until the reported bug is fixed.">
+<meta property="og:url" content="https://nirholas.github.io/three-ws-witness/">
+<meta property="og:image" content="https://nirholas.github.io/three-ws-witness/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="@three-ws/witness">
+<meta name="twitter:description" content="Turn a real user session into a runnable failing test. A tiny, privacy-first session recorder that captures intent (not pixels, not DOM mutations) and compiles it into a Playwright spec that stays red until the reported bug is fixed.">
+<meta name="twitter:image" content="https://nirholas.github.io/three-ws-witness/og.png">
+<meta name="keywords" content="bug-report, session-replay, playwright, repro, reproduction, testing, e2e, feedback, selector, privacy, three.ws, ai-agents">
+<link rel="alternate" type="text/plain" href="llms.txt" title="llms.txt">
+<link rel="icon" href="https://three.ws/three-ws-mcp-icon.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"@three-ws/witness","description":"Turn a real user session into a runnable failing test. A tiny, privacy-first session recorder that captures intent (not pixels, not DOM mutations) and compiles it into a Playwright spec that stays red until the reported bug is fixed.","codeRepository":"https://github.com/nirholas/three-ws-witness","programmingLanguage":"JavaScript","license":"https://spdx.org/licenses/Apache-2.0.html","version":"0.1.0","url":"https://nirholas.github.io/three-ws-witness/","author":{"@type":"Organization","name":"three.ws","url":"https://three.ws"},"keywords":"bug-report, session-replay, playwright, repro, reproduction, testing, e2e, feedback, selector, privacy, three.ws, ai-agents"}</script>
+<style>:root{--bg:#fff;--fg:#111418;--mut:#586069;--line:#e3e6ea;--acc:#2563eb;--code:#f4f6f8;--card:#fafbfc}
+@media(prefers-color-scheme:dark){:root{--bg:#0b0d10;--fg:#e8eaed;--mut:#9aa3ad;--line:#232830;--acc:#6ea0ff;--code:#14181d;--card:#10141a}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+a{color:var(--acc)}a:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:4px}
+header.bar{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1100px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{font-weight:700;text-decoration:none;color:var(--fg)}
+.bar nav{margin-left:auto;display:flex;gap:16px;font-size:14px}
+.bar nav a{color:var(--mut);text-decoration:none;transition:color .15s}.bar nav a:hover{color:var(--fg)}
+.hero{max-width:1100px;margin:0 auto;padding:48px 16px 24px}
+.hero h1{font-size:clamp(28px,5vw,44px);line-height:1.15;margin:0 0 12px;letter-spacing:-.02em}
+.hero p{color:var(--mut);max-width:70ch;font-size:18px;margin:0 0 24px}
+.install{display:flex;align-items:center;gap:8px;max-width:620px;background:var(--code);border:1px solid var(--line);border-radius:10px;padding:6px 6px 6px 14px}
+.install code{flex:1;overflow-x:auto;white-space:nowrap;font:14px ui-monospace,SFMono-Regular,Menlo,monospace}
+.install button{border:0;background:var(--acc);color:#fff;border-radius:7px;padding:8px 14px;font:600 13px system-ui;cursor:pointer;transition:transform .12s,opacity .12s}
+.install button:hover{opacity:.9}.install button:active{transform:scale(.96)}
+.cta{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.cta a{padding:9px 16px;border:1px solid var(--line);border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;color:var(--fg);transition:border-color .15s,transform .15s}
+.cta a:hover{border-color:var(--acc);transform:translateY(-1px)}.cta a.pri{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.layout{max-width:1100px;margin:0 auto;padding:8px 16px 64px;display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:40px}
+@media(max-width:860px){.layout{grid-template-columns:minmax(0,1fr)}.toc{display:none}}
+.toc{position:sticky;top:76px;align-self:start;font-size:14px;border-left:1px solid var(--line);padding-left:16px}
+.toc p{margin:0 0 8px;font-weight:700;color:var(--mut);text-transform:uppercase;font-size:12px;letter-spacing:.06em}
+.toc ul{list-style:none;margin:0;padding:0}.toc li{margin:6px 0}.toc a{color:var(--mut);text-decoration:none}.toc a:hover{color:var(--fg)}
+main{min-width:0;overflow-wrap:anywhere}main pre code{overflow-wrap:normal}main img{max-width:100%;height:auto}
+main h2{margin-top:2.2em;padding-bottom:.3em;border-bottom:1px solid var(--line)}
+.anchor{margin-left:-1.1em;padding-right:.4em;text-decoration:none;opacity:0;color:var(--mut)}h2:hover .anchor,h3:hover .anchor,h4:hover .anchor{opacity:1}
+pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow-x:auto;font-size:14px;line-height:1.5}
+code{font:0.9em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--code);padding:.15em .35em;border-radius:5px}pre code{background:none;padding:0}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%}th,td{border:1px solid var(--line);padding:8px 12px;text-align:left}th{background:var(--card)}
+blockquote{margin:1em 0;padding:.2em 1em;border-left:4px solid var(--line);color:var(--mut)}
+footer{border-top:1px solid var(--line);color:var(--mut);font-size:14px}
+.foot-in{max-width:1100px;margin:0 auto;padding:24px 16px;display:flex;gap:16px;flex-wrap:wrap}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+<a class="brand" href="https://nirholas.github.io/three-ws-witness/">@three-ws/witness</a>
+<nav aria-label="Project links"><a href="https://github.com/nirholas/three-ws-witness">GitHub</a><a href="https://www.npmjs.com/package/@three-ws/witness">npm</a><a href="llms.txt">llms.txt</a><a href="https://three.ws">three.ws</a></nav>
+</div></header>
+<section class="hero">
+<h1>@three-ws/witness</h1>
+<p>Turn a real user session into a runnable failing test. A tiny, privacy-first session recorder that captures intent (not pixels, not DOM mutations) and compiles it into a Playwright spec that stays red until the reported bug is fixed.</p>
+<div class="install" role="group" aria-label="Install command"><code>npm install @three-ws/witness</code><button type="button" data-copy="npm install @three-ws/witness">Copy</button></div>
+<div class="cta"><a class="pri" href="https://github.com/nirholas/three-ws-witness">View on GitHub</a><a href="https://github.com/nirholas/three-ws-witness/stargazers">Star the repo</a></div>
+</section>
+<div class="layout">
+<main id="content"><h1>@three-ws/witness</h1>
+<p><strong>Turn a real user session into a runnable failing test.</strong></p>
+<p>A bug report is a description of an experiment somebody else has to reconstruct.
+This makes it the experiment.</p>
+<pre><code class="language-js">import { witness } from &#39;@three-ws/witness&#39;;
+witness.start();
+
+// ...someone uses your site and something breaks...
+
+import { compileToPlaywright } from &#39;@three-ws/witness/compile&#39;;
+const { source } = compileToPlaywright(witness.trace(), { title: &#39;Export does nothing&#39; });
+</code></pre>
+<p><code>source</code> is a Playwright spec. It is <strong>red while the bug exists and green once it
+is fixed</strong>, so &quot;can you reproduce it&quot; and &quot;is it actually fixed&quot; stop being
+conversations.</p>
+<pre><code class="language-js">// Generated by @three-ws/witness from a real user session.
+// Report:  Export does nothing
+// Replay confidence: 80/100. Every step is anchored to a stable handle.
+//
+// This test asserts the FAILURE IS GONE, so it is red until the bug is fixed.
+// What the visitor did:
+//   Open /avatar-studio
+//   Click the button [export]
+//   Type 11 characters into the field labelled &quot;Model name&quot;
+//   Click the button &quot;Download&quot;
+//   The request failed: POST /api/export -&gt; 500
+
+import { test, expect } from &#39;@playwright/test&#39;;
+
+test.describe(&#39;witness repro&#39;, () =&gt; {
+	test.use({ viewport: { width: 390, height: 844 }, locale: &#39;en-GB&#39;, hasTouch: true, isMobile: true });
+	test(&#39;Export does nothing&#39;, async ({ page }) =&gt; {
+		const pageErrors = [];
+		const failedRequests = [];
+		page.on(&#39;pageerror&#39;, (err) =&gt; pageErrors.push(`${err.name}: ${err.message}`));
+		page.on(&#39;response&#39;, (res) =&gt; {
+			if (res.status() &gt;= 400) failedRequests.push(`${res.request().method()} ${new URL(res.url()).pathname} -&gt; ${res.status()}`);
+		});
+
+		await page.goto(&#39;/avatar-studio&#39;);
+		await page.getByTestId(&quot;export&quot;).click();
+		await page.getByLabel(&quot;Model name&quot;).fill(&#39;xxxxxxxxxxx&#39;); // visitor typed 11 text character(s)
+		await page.getByRole(&quot;button&quot;, { name: &quot;Download&quot; }).click();
+
+		// The session saw these requests fail:
+		//   POST /api/export -&gt; 500
+		expect(failedRequests, `a request failed during the reported flow`).toEqual([]);
+	});
+});
+</code></pre>
+<h2 id="why-this-is-not-session-replay"><a class="anchor" href="#why-this-is-not-session-replay" aria-label="Link to this section">#</a>Why this is not session replay</h2>
+<p>Session replay records the DOM mutation stream, weighs megabytes per session,
+costs real money to store, and gives you a video to watch. You still have to
+reproduce the bug yourself afterwards.</p>
+<p>Witness records <strong>intent</strong>, in about two kilobytes:</p>
+<pre><code>goto   /avatar-studio
+click  the button &quot;Export&quot;
+fill   the field &quot;Model name&quot; (11 chars)
+click  the button &quot;Download&quot;
+xhr    POST /api/export -&gt; 500
+error  TypeError: exportGLB is not a function (studio.js:412)
+</code></pre>
+<p>Because it is that small it can be always-on. Because it is always-on, the trace
+<strong>already exists at the moment somebody decides to complain</strong>. Nobody can
+reproduce a bug on request. Everybody has just done it.</p>
+<h2 id="install"><a class="anchor" href="#install" aria-label="Link to this section">#</a>Install</h2>
+<pre><code class="language-bash">npm install @three-ws/witness
+</code></pre>
+<pre><code class="language-js">import { witness } from &#39;@three-ws/witness&#39;;
+
+witness.start();
+
+// Ask at the moment of failure, which is the only moment the person still
+// remembers what they were doing.
+witness.onFailure(() =&gt; showYourFeedbackPrompt());
+</code></pre>
+<p>No dependencies. No build step. Works on any site, any framework, in about 6 KB.</p>
+<h2 id="the-selector-ladder"><a class="anchor" href="#the-selector-ladder" aria-label="Link to this section">#</a>The selector ladder</h2>
+<p>A recorder that emits <code>div &gt; div:nth-child(3) &gt; button</code> produces tests that pass
+review and break on the next refactor. Every element gets the strongest handle it
+actually has, <strong>verified unique against the live document</strong> before it is
+accepted, and demoted one rung at a time until something holds:</p>
+<table>
+<thead>
+<tr>
+<th>Rung</th>
+<th>Handle</th>
+<th>Emits</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>testid</td>
+<td><code>[data-testid]</code>, <code>[data-test]</code>, <code>[data-qa]</code>, <code>[data-cy]</code></td>
+<td><code>getByTestId()</code></td>
+<td>100</td>
+</tr>
+<tr>
+<td>id</td>
+<td><code>#id</code>, unless it looks framework-generated</td>
+<td><code>locator(&#39;#id&#39;)</code></td>
+<td>95</td>
+</tr>
+<tr>
+<td>label</td>
+<td><code>[aria-label]</code></td>
+<td><code>getByLabel()</code></td>
+<td>85</td>
+</tr>
+<tr>
+<td>role</td>
+<td>role + accessible name</td>
+<td><code>getByRole()</code></td>
+<td>80</td>
+</tr>
+<tr>
+<td>text</td>
+<td>visible text on buttons and links</td>
+<td><code>getByText()</code></td>
+<td>70</td>
+</tr>
+<tr>
+<td>name</td>
+<td><code>[name]</code> on form controls</td>
+<td><code>locator()</code></td>
+<td>65</td>
+</tr>
+<tr>
+<td>placeholder</td>
+<td><code>[placeholder]</code></td>
+<td><code>getByPlaceholder()</code></td>
+<td>60</td>
+</tr>
+<tr>
+<td>class</td>
+<td>one stable-looking class token</td>
+<td><code>locator()</code></td>
+<td>40</td>
+</tr>
+<tr>
+<td>path</td>
+<td><code>:nth-of-type</code> chain</td>
+<td><code>locator()</code></td>
+<td>10</td>
+</tr>
+</tbody></table>
+<p>Framework-generated ids (<code>:r3a:</code>, <code>css-1x2y3z4</code>, <code>radix-abc123</code>) and utility
+classes (<code>px-4</code>, <code>sm:text-lg</code>, <code>-mt-2</code>) are refused: a test hung off <code>.px-4</code> is a
+test hung off a design decision.</p>
+<p>Every trace carries a <strong>replay confidence</strong> equal to its weakest link, because
+one fragile locator breaks the whole spec:</p>
+<pre><code class="language-js">import { replayConfidence } from &#39;@three-ws/witness/compile&#39;;
+replayConfidence(trace);
+// { score: 40, weakest: {...}, note: &#39;A step is anchored to a class name, which a restyle can break.&#39; }
+</code></pre>
+<p>That number is honest feedback about your own markup. A codebase that adds
+<code>data-testid</code> to its primary actions watches it climb.</p>
+<h2 id="privacy-is-a-property-of-what-gets-recorded"><a class="anchor" href="#privacy-is-a-property-of-what-gets-recorded" aria-label="Link to this section">#</a>Privacy is a property of what gets recorded</h2>
+<p>Not of what gets deleted afterwards. A recorder that captures everything and
+scrubs later has already put the secret in memory, in a buffer, and one bug away
+from a network call.</p>
+<ul>
+<li><strong>Typed values are never held.</strong> A filled field records <code>text:11</code>, meaning
+eleven characters of ordinary text. The characters do not exist in the trace.</li>
+<li><strong>Password, hidden, email, tel, and date inputs record nothing at all</strong>, and
+neither does any field whose name, id, <code>autocomplete</code>, label, or placeholder
+suggests it holds something personal.</li>
+<li><strong>URLs are stripped at capture.</strong> Userinfo and the hash go entirely; the names
+of query parameters are kept, their values redacted when they look like
+credentials.</li>
+<li><strong>Free text is scanned</strong> for the shapes secrets take: emails, JWTs, API keys,
+card numbers, wallet addresses, long base58 runs.</li>
+<li><strong>Opt out per subtree</strong> with <code>data-witness=&quot;off&quot;</code>. Nothing inside it is
+observed, not even that it was clicked.</li>
+</ul>
+<pre><code class="language-html">&lt;section data-witness=&quot;off&quot;&gt;
+	&lt;!-- nothing in here is ever recorded --&gt;
+&lt;/section&gt;
+</code></pre>
+<ul>
+<li><strong>Mark a request whose failures you already handle</strong> with an <code>x-witness: handled</code> header. The call is still recorded, so a report the user files
+carries it, but its 5xx stops counting as an unhandled failure. That matters
+because <code>hasFailure()</code> is what a host app reads to decide whether to
+proactively ask &quot;something just broke, want to tell me what you were doing?&quot;.
+A page that renders a designed state for a 503 (a rate limit, a lane outage)
+should not trigger that offer, and on a narrow screen the offer landed on top
+of the recovery buttons the page was already showing.</li>
+</ul>
+<pre><code class="language-js">// This endpoint&#39;s 429 and 503 both have designed states in the UI.
+await fetch(&#39;/api/forge&#39;, { method: &#39;POST&#39;, headers: { &#39;x-witness&#39;: &#39;handled&#39; } });
+</code></pre>
+<p>A request that never resolves at all (a dropped connection, DNS failure) still
+counts as a failure with or without the marker: no UI can have a designed state
+for a response it never received.</p>
+<h2 id="it-never-changes-the-page-it-watches"><a class="anchor" href="#it-never-changes-the-page-it-watches" aria-label="Link to this section">#</a>It never changes the page it watches</h2>
+<ul>
+<li>Listeners are capture-phase and never call <code>preventDefault</code>.</li>
+<li>The <code>fetch</code> and <code>XMLHttpRequest</code> wrappers return the original object untouched
+on <strong>every</strong> path, including the throwing ones.</li>
+<li>Every handler is wrapped so a throw inside the recorder cannot surface as an
+error in your page.</li>
+<li>The buffer is bounded, so a tab left open for eight hours costs what one open
+for eight seconds costs.</li>
+</ul>
+<p>Instrumentation that can change behaviour is a bug generator, not a bug reporter.</p>
+<h2 id="the-honest-failure-mode"><a class="anchor" href="#the-honest-failure-mode" aria-label="Link to this section">#</a>The honest failure mode</h2>
+<p>When a session recorded <strong>no exception and no failed request</strong>, the visitor
+judged the <em>result</em> wrong, and no recorder can see that. The compiler will not
+invent an assertion to look useful. It emits the steps, then:</p>
+<pre><code class="language-js">// The browser recorded no exception or failed request for this report:
+// the visitor judged the RESULT wrong, which no recorder can see.
+// Replace this with the assertion that states what should have happened.
+expect(pageErrors, &#39;no page errors during the reported flow&#39;).toEqual([]);
+test.fail(true, &#39;Add the assertion this report is really about.&#39;);
+</code></pre>
+<p>You get the reproduction steps for free and write the one line only a human can.</p>
+<h2 id="api"><a class="anchor" href="#api" aria-label="Link to this section">#</a>API</h2>
+<h3 id="witnessstartoptions"><a class="anchor" href="#witnessstartoptions" aria-label="Link to this section">#</a><code>witness.start(options?)</code></h3>
+<p>Begin recording. Idempotent. Returns the <code>Recorder</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>maxEvents</code></td>
+<td><code>60</code></td>
+<td>Ring buffer size. The initial navigation is never evicted.</td>
+</tr>
+<tr>
+<td><code>coalesceMs</code></td>
+<td><code>900</code></td>
+<td>Identical repeats inside this window become a count, not new events.</td>
+</tr>
+<tr>
+<td><code>captureNetwork</code></td>
+<td><code>true</code></td>
+<td>Wrap <code>fetch</code>/XHR to notice failed requests.</td>
+</tr>
+<tr>
+<td><code>captureConsole</code></td>
+<td><code>true</code></td>
+<td>Record uncaught errors and unhandled rejections.</td>
+</tr>
+<tr>
+<td><code>ignore</code></td>
+<td>none</td>
+<td><code>(path) =&gt; boolean</code>. Exclude your own reporting endpoint, or a noisy poller.</td>
+</tr>
+</tbody></table>
+<h3 id="witnesstrace"><a class="anchor" href="#witnesstrace" aria-label="Link to this section">#</a><code>witness.trace()</code></h3>
+<p>The trace so far. Valid and empty before <code>start()</code>.</p>
+<h3 id="witnesshasfailure-withinms-witnessonfailurefn"><a class="anchor" href="#witnesshasfailure-withinms-witnessonfailurefn" aria-label="Link to this section">#</a><code>witness.hasFailure({ withinMs })</code> / <code>witness.onFailure(fn)</code></h3>
+<p>Whether the session hit something the browser itself called a failure, and a
+subscription for the moment it happens. This is the trigger for asking.</p>
+<h3 id="witnessstop"><a class="anchor" href="#witnessstop" aria-label="Link to this section">#</a><code>witness.stop()</code></h3>
+<p>Stop and restore every patched global.</p>
+<h3 id="compiletoplaywrighttrace-title-baseurl-reportid"><a class="anchor" href="#compiletoplaywrighttrace-title-baseurl-reportid" aria-label="Link to this section">#</a><code>compileToPlaywright(trace, { title, baseUrl, reportId })</code></h3>
+<p>Returns <code>{ filename, source, confidence, steps }</code>.</p>
+<h3 id="narratetrace"><a class="anchor" href="#narratetrace" aria-label="Link to this section">#</a><code>narrate(trace)</code></h3>
+<p>The same sequence as plain English, for a dashboard or an issue body. The
+narration and the spec come from one source, so they can never disagree.</p>
+<h3 id="describeelementel-toplaywrightlocatordesc"><a class="anchor" href="#describeelementel-toplaywrightlocatordesc" aria-label="Link to this section">#</a><code>describeElement(el)</code> / <code>toPlaywrightLocator(desc)</code></h3>
+<p>The selector engine on its own, if you want stable locators for something else.</p>
+<h2 id="where-this-came-from"><a class="anchor" href="#where-this-came-from" aria-label="Link to this section">#</a>Where this came from</h2>
+<p>three.ws puts a 3D agent in the corner of every page. When a page throws, the
+agent turns around and asks what you were doing, and the answer arrives with the
+session already attached. The maintainer&#39;s queue shows one row per problem with a
+<strong>Copy test</strong> button.</p>
+<p>The rest of that loop is documented at
+<a href="https://three.ws/docs/feedback">three.ws/docs/feedback</a>. This package is the
+part that does not depend on any of it.</p>
+<h2 id="license"><a class="anchor" href="#license" aria-label="Link to this section">#</a>License</h2>
+<p>Apache-2.0</p>
+</main>
+<nav class="toc" aria-label="On this page"><p>On this page</p><ul><li><a href="#why-this-is-not-session-replay">Why this is not session replay</a></li><li><a href="#install">Install</a></li><li><a href="#the-selector-ladder">The selector ladder</a></li><li><a href="#privacy-is-a-property-of-what-gets-recorded">Privacy is a property of what gets recorded</a></li><li><a href="#it-never-changes-the-page-it-watches">It never changes the page it watches</a></li><li><a href="#the-honest-failure-mode">The honest failure mode</a></li><li><a href="#api">API</a></li><li><a href="#where-this-came-from">Where this came from</a></li><li><a href="#license">License</a></li></ul></nav>
+</div>
+<footer><div class="foot-in"><span>Apache-2.0 licensed</span><a href="https://github.com/nirholas/three-ws-witness/issues">Issues</a><a href="https://github.com/nirholas/three-ws-witness/blob/main/CONTRIBUTING.md">Contributing</a><a href="https://github.com/nirholas/three-ws-witness/security/policy">Security</a><a href="https://three.ws">Part of three.ws</a></div></footer>
+<script>document.querySelectorAll('[data-copy]').forEach(function(b){b.addEventListener('click',function(){
+var t=b.getAttribute('data-copy');var done=function(){var o=b.textContent;b.textContent='Copied';setTimeout(function(){b.textContent=o},1400)};
+if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){})}
+else{var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');done()}catch(e){}a.remove()}})});</script>
+</body>
+</html>

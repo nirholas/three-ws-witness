@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: "@three-ws/witness"
+abstract: "Turn a real user session into a runnable failing test. A tiny, privacy-first session recorder that captures intent (not pixels, not DOM mutations) and compiles it into a Playwright spec that stays red until the reported bug is fixed."
+version: 0.1.0
+license: Apache-2.0
+repository-code: "https://github.com/nirholas/three-ws-witness"
+url: "https://three.ws"
+authors:
+  - name: three.ws
+    website: "https://three.ws"

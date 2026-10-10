@@ -1,0 +1,19 @@
+# @three-ws/witness
+
+> Turn a real user session into a runnable failing test. A tiny, privacy-first session recorder that captures intent (not pixels, not DOM mutations) and compiles it into a Playwright spec that stays red until the reported bug is fixed.
+
+@three-ws/witness is a JavaScript library from three.ws. Install: `npm install @three-ws/witness`.
+
+## Docs
+
+- [README](https://github.com/nirholas/three-ws-witness/blob/main/README.md): install, configuration, full reference
+- [Documentation site](https://nirholas.github.io/three-ws-witness/): the README as a web page
+- [Full text for LLMs](https://nirholas.github.io/three-ws-witness/llms-full.txt): README inlined
+- [AGENTS.md](https://github.com/nirholas/three-ws-witness/blob/main/AGENTS.md): guidance for coding agents
+
+## Project
+
+- [Source](https://github.com/nirholas/three-ws-witness)
+- [npm](https://www.npmjs.com/package/@three-ws/witness)
+- [three.ws](https://three.ws): the platform this is part of
+- [Issues](https://github.com/nirholas/three-ws-witness/issues)
